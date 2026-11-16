@@ -340,7 +340,8 @@ export default Plugin.define({
             });
             return;
           }
-          await ctx.storage.set(tierKey(sessionID), parsed.kind === "clear" ? null : parsed.tier);
+          if (parsed.kind === "clear") await ctx.storage.remove(tierKey(sessionID));
+          else await ctx.storage.set(tierKey(sessionID), parsed.tier);
         },
       });
     });
@@ -363,7 +364,8 @@ export default Plugin.define({
         if (value !== null && !(COST_TIERS as readonly string[]).includes(value)) {
           return { error: `unknown tier ${String(tier)}` };
         }
-        await ctx.storage.set(tierKey(sessionID), value);
+        if (value === null) await ctx.storage.remove(tierKey(sessionID));
+        else await ctx.storage.set(tierKey(sessionID), value);
         return { tier: value };
       },
       getTier: async (raw) => {

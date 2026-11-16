@@ -153,9 +153,15 @@ npm test
   cost into OpenCode's own totals.
 - OpenCode has no per-response stream metadata surface; the billed-cost capture pi does on
   the stream is out of scope here.
+- Verified on OpenCode v2.3.0: catalog registration, the session `context` hook (JIT pick
+  recorded), the RPC surface, cost-tier set/get/clear, and hot reload all work for
+  **service-executed sessions** (the TUI and anything driving `POST /api/session/:id/prompt`).
+  `opencode run` executes sessions in its own runtime and does not fire plugin session
+  hooks — headless users should drive the shared service (SDK/`opencode api`) instead.
 - The `context` hook's provider options are passed through by OpenCode's protocol layer;
-  verify the `provider` and `plugins` keys reach the OpenRouter request body on your
-  OpenCode version (log one assembled payload via the `http.request` hook if in doubt).
+  the `provider` overlay was verified to be applied at the hook level, but a packet-level
+  check that `provider.order` reaches the OpenRouter wire (e.g. behind a logging proxy)
+  is a reasonable extra belt-and-suspenders step.
 
 ## License
 
