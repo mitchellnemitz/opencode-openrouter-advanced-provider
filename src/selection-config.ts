@@ -111,7 +111,7 @@ export function mergeRequestOptions(
 /**
  * Built-in selection tuning — the values the algorithm shipped with, kept
  * here so a user file overrides any single field without naming the rest.
- * The shipped `openrouter-provider.json` carries the same numbers; this
+ * The shipped `openrouter-advanced-provider.json` carries the same numbers; this
  * constant is the base of the merge and the fallback for invalid input.
  */
 export const DEFAULT_SELECTION: SelectionTuning = {
@@ -207,11 +207,11 @@ export function parseSelectionSection(raw: unknown, warnings: string[]): Selecti
 function shippedConfigPath(): string {
   // Shipped alongside the plugin source; the user file in the OpenCode
   // config directory overrides it.
-  return path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "openrouter-provider.json");
+  return path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "openrouter-advanced-provider.json");
 }
 
 function userConfigPath(): string {
-  return path.join(os.homedir(), ".config", "opencode", "openrouter-provider.json");
+  return path.join(os.homedir(), ".config", "opencode", "openrouter-advanced-provider.json");
 }
 
 function readJsonFile(

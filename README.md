@@ -1,4 +1,4 @@
-# opencode-openrouter-provider
+# opencode-openrouter-advanced-provider
 
 An [OpenRouter](https://openrouter.ai) provider plugin for [OpenCode 2.x](https://opencode.ai):
 account-scoped live model catalog, real context windows, just-in-time weighted provider
@@ -55,15 +55,15 @@ advisory only.
 From npm (once published):
 
 ```sh
-opencode plugin add opencode-openrouter-provider
+opencode plugin add opencode-openrouter-advanced-provider
 ```
 
-Or for development, check the directory out under `.opencode/plugins/opencode-openrouter-provider/`
+Or for development, check the directory out under `.opencode/plugins/opencode-openrouter-advanced-provider/`
 (it auto-discovers), or add to `opencode.jsonc`:
 
 ```jsonc
 {
-  "plugins": ["opencode-openrouter-provider"]
+  "plugins": ["opencode-openrouter-advanced-provider"]
 }
 ```
 
@@ -83,15 +83,15 @@ swap account-scoped data for the generic list.
 
 One file name, layered — later layers win per field:
 
-1. `openrouter-provider.json` shipped in the package (defaults below).
-2. `~/.config/opencode/openrouter-provider.json` — user overrides.
+1. `openrouter-advanced-provider.json` shipped in the package (defaults below).
+2. `~/.config/opencode/openrouter-advanced-provider.json` — user overrides.
 3. Plugin options in `opencode.jsonc`:
 
 ```jsonc
 {
   "plugins": [
     {
-      "package": "opencode-openrouter-provider",
+      "package": "opencode-openrouter-advanced-provider",
       "options": {
         "selection": {
           "enabled": true,

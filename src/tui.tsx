@@ -32,7 +32,7 @@ export default Plugin.define({
     // beyond logging warnings).
     const offSynced = rpc.events.on("synced", ({ data }) => {
       if (data.warnings && data.warnings.length > 0) {
-        console.warn("[openrouter-provider] config warnings:", data.warnings);
+        console.warn("[openrouter-advanced-provider] config warnings:", data.warnings);
       }
     });
 

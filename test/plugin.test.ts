@@ -73,12 +73,12 @@ test("config: merge overlays provider and skips reserved keys", () => {
 });
 
 test("config: loadRequestConfig validates provider sub-keys", () => {
-  const tmp = "/tmp/openrouter-provider-test-config.json";
+  const tmp = "/tmp/openrouter-advanced-provider-test-config.json";
   fs.writeFileSync(
     tmp,
     JSON.stringify({ requests: { defaults: { provider: { data_collection: "deny", bogus_key: 1 } } } }),
   );
-  const { config, warnings } = loadRequestConfig(undefined, tmp, "/nonexistent/openrouter-provider.json");
+  const { config, warnings } = loadRequestConfig(undefined, tmp, "/nonexistent/openrouter-advanced-provider.json");
   assert.ok(warnings.some((w) => w.includes("bogus_key")));
   assert.deepEqual(config.defaults?.provider, { data_collection: "deny" });
 });

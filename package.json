@@ -1,5 +1,5 @@
 {
-  "name": "opencode-openrouter-provider",
+  "name": "opencode-openrouter-advanced-provider",
   "version": "0.1.0",
   "description": "OpenRouter provider plugin for OpenCode: account-scoped live model catalog, real context windows, just-in-time weighted provider selection, and session cost tiers for the auto-routers.",
   "type": "module",
@@ -11,7 +11,7 @@
   },
   "files": [
     "src",
-    "openrouter-provider.json"
+    "openrouter-advanced-provider.json"
   ],
   "engines": {
     "opencode": "^2.2.0"

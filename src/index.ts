@@ -89,7 +89,7 @@ async function ensurePick(rt: SelectionRuntime, modelId: string): Promise<Select
 // Session cost tiers (storage-backed, per session)
 // ---------------------------------------------------------------------------
 
-const tierKey = (sessionID: string) => `openrouter-provider:tier:${sessionID}`;
+const tierKey = (sessionID: string) => `openrouter-advanced-provider:tier:${sessionID}`;
 
 async function getTier(ctx: Context, sessionID: string): Promise<CostTier | null> {
   const value = await ctx.storage.get(tierKey(sessionID));
@@ -218,11 +218,11 @@ export default Plugin.define({
     try {
       const result = await syncCatalog(true);
       if (result.warnings.length > 0) {
-        console.warn("[openrouter-provider] config warnings:", result.warnings);
+        console.warn("[openrouter-advanced-provider] config warnings:", result.warnings);
       }
     } catch (err) {
       console.warn(
-        "[openrouter-provider] initial catalog sync failed:",
+        "[openrouter-advanced-provider] initial catalog sync failed:",
         err instanceof Error ? err.message : err,
       );
     }
@@ -310,7 +310,7 @@ export default Plugin.define({
         execute: async () => {
           if (!apiKey) return;
           const credits: OpenRouterCreditsInfo | null = await fetchCredits(apiKey);
-          if (credits) await ctx.storage.set("openrouter-provider:balance", { ...credits, at: Date.now() });
+          if (credits) await ctx.storage.set("openrouter-advanced-provider:balance", { ...credits, at: Date.now() });
         },
       });
       editor.add({
@@ -318,7 +318,7 @@ export default Plugin.define({
         description: "Record OpenRouter sync state, picks, and active tuning",
         execute: async () => {
           const status = buildStatus(loaded);
-          await ctx.storage.set("openrouter-provider:status", { ...status, at: Date.now() });
+          await ctx.storage.set("openrouter-advanced-provider:status", { ...status, at: Date.now() });
         },
       });
       editor.add({
@@ -329,13 +329,13 @@ export default Plugin.define({
           const parsed = arg ? parseTierArg(arg) : undefined;
           if (!arg) {
             const current = await getTier(ctx, sessionID);
-            await ctx.storage.set(`openrouter-provider:tier-help:${sessionID}`, {
+            await ctx.storage.set(`openrouter-advanced-provider:tier-help:${sessionID}`, {
               message: `Usage: /openrouter-tier ${COST_TIERS.join("|")}|off${current ? ` (current: ${current})` : ""}`,
             });
             return;
           }
           if (!parsed || parsed.kind === "invalid") {
-            await ctx.storage.set(`openrouter-provider:tier-help:${sessionID}`, {
+            await ctx.storage.set(`openrouter-advanced-provider:tier-help:${sessionID}`, {
               message: `Unknown tier "${parsed && parsed.kind === "invalid" ? parsed.input : arg}" — options: ${COST_TIERS.join(", ")}, off`,
             });
             return;

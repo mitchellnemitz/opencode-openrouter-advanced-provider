@@ -12,7 +12,7 @@ export interface ProviderStatus {
 }
 
 export const OpenRouterProviderRpc = Rpc.define({
-  id: "openrouter-provider",
+  id: "openrouter-advanced-provider",
   methods: {
     status: {
       input: { type: "object", additionalProperties: false },
