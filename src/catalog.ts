@@ -92,6 +92,22 @@ function costOrFallback(cost: number | undefined, fallback: number): number {
   return cost !== undefined ? cost : fallback;
 }
 
+/**
+ * Upper bound on the output budget registered with OpenCode.
+ *
+ * OpenRouter catalogs advertise max_completion_tokens values (up to 256k)
+ * that upstream providers do not always honor, and OpenCode budgets every
+ * request's max_tokens from the registered limit.output. Requesting the
+ * full advertised maximum fails OpenRouter's credit-affordability check
+ * whenever the key's balance cannot cover the worst case, even when the
+ * request would use far fewer tokens. The Pi version of this plugin solves
+ * this by never sending max_tokens unless configured; OpenCode always
+ * budgets from limit.output, so the equivalent here is capping the
+ * registered ceiling. Explicit per-model config entries still win (matching
+ * Pi: user config overrides are the user's own choice).
+ */
+export const MAX_REGISTERED_OUTPUT_TOKENS = 32_768;
+
 /** Convert one catalog model into the OpenCode registration shape. */
 export function toRegisteredModel(m: OpenRouterModel): RegisteredModel {
   return {
@@ -106,7 +122,7 @@ export function toRegisteredModel(m: OpenRouterModel): RegisteredModel {
       cacheWrite: costOrFallback(parseCost(m.pricing?.input_cache_write), 0),
     },
     contextWindow: m.context_length || 128_000,
-    maxTokens: m.top_provider?.max_completion_tokens || 16_384,
+    maxTokens: Math.min(m.top_provider?.max_completion_tokens || 16_384, MAX_REGISTERED_OUTPUT_TOKENS),
     releaseDate: m.created ? new Date(m.created * 1000).toISOString().slice(0, 10) : undefined,
   };
 }
