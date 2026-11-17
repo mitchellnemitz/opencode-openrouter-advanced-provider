@@ -93,20 +93,23 @@ function costOrFallback(cost: number | undefined, fallback: number): number {
 }
 
 /**
- * Upper bound on the output budget registered with OpenCode.
+ * Registered models assert NO output budget (maxTokens: 0).
  *
- * OpenRouter catalogs advertise max_completion_tokens values (up to 256k)
- * that upstream providers do not always honor, and OpenCode budgets every
- * request's max_tokens from the registered limit.output. Requesting the
- * full advertised maximum fails OpenRouter's credit-affordability check
- * whenever the key's balance cannot cover the worst case, even when the
- * request would use far fewer tokens. The Pi version of this plugin solves
- * this by never sending max_tokens unless configured; OpenCode always
- * budgets from limit.output, so the equivalent here is capping the
- * registered ceiling. Explicit per-model config entries still win (matching
- * Pi: user config overrides are the user's own choice).
+ * OpenCode budgets every request's max_tokens from the registered
+ * limit.output, and OpenRouter catalogs advertise max_completion_tokens
+ * values (up to 256k) that upstream providers do not always honor.
+ * Requesting the full advertised maximum fails OpenRouter's
+ * credit-affordability check whenever the key's balance cannot cover the
+ * worst case, even when the turn would use far fewer tokens.
+ *
+ * maxTokens: 0 means "no asserted budget": OpenCode falls back to its own
+ * built-in output default and still clamps to the context actually
+ * available. This is the same registration shape OpenCode itself uses for
+ * its Claude Agent models. The Pi version of this plugin achieves the same
+ * result differently — it omits max_tokens from requests unless configured.
+ * Explicit per-model config entries still win (matching Pi: user config
+ * overrides are the user's own choice).
  */
-export const MAX_REGISTERED_OUTPUT_TOKENS = 32_768;
 
 /** Convert one catalog model into the OpenCode registration shape. */
 export function toRegisteredModel(m: OpenRouterModel): RegisteredModel {
@@ -122,7 +125,7 @@ export function toRegisteredModel(m: OpenRouterModel): RegisteredModel {
       cacheWrite: costOrFallback(parseCost(m.pricing?.input_cache_write), 0),
     },
     contextWindow: m.context_length || 128_000,
-    maxTokens: Math.min(m.top_provider?.max_completion_tokens || 16_384, MAX_REGISTERED_OUTPUT_TOKENS),
+    maxTokens: 0,
     releaseDate: m.created ? new Date(m.created * 1000).toISOString().slice(0, 10) : undefined,
   };
 }

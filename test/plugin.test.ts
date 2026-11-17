@@ -199,15 +199,13 @@ test("catalog: pricing and modalities", () => {
   assert.ok(isReasoningModel(m));
   const reg = toRegisteredModel(m);
   assert.equal(reg.contextWindow, 200000);
-  assert.equal(reg.maxTokens, 16384);
+  assert.equal(reg.maxTokens, 0);
   assert.equal(reg.cost.input, 200);
   assert.equal(reg.reasoning, true);
   assert.deepEqual(reg.input, ["text"]);
 });
 
-// ---- registered output-token cap ----
-
-import { MAX_REGISTERED_OUTPUT_TOKENS } from "../src/catalog.js";
+// ---- registered output budget: none (0) ----
 
 const glmLikeModel = (overrides: Partial<OpenRouterModel> = {}): OpenRouterModel => ({
   id: "z-ai/glm-latest",
@@ -220,25 +218,14 @@ const glmLikeModel = (overrides: Partial<OpenRouterModel> = {}): OpenRouterModel
   ...overrides,
 } as unknown as OpenRouterModel);
 
-test("registered output cap: advertised maximum is capped at registration", () => {
+test("registered output budget: no asserted budget (0), never the advertised maximum", () => {
   const m = toRegisteredModel(glmLikeModel());
-  assert.equal(m.maxTokens, MAX_REGISTERED_OUTPUT_TOKENS);
-  assert.ok(m.maxTokens < 256_000, "must not register the full advertised maximum");
+  assert.equal(m.maxTokens, 0, "catalog max_completion_tokens must not be registered as a budget");
 });
 
-test("registered output cap: models under the cap are untouched", () => {
-  const m = toRegisteredModel(glmLikeModel({ top_provider: { max_completion_tokens: 16_384 } }));
-  assert.equal(m.maxTokens, 16_384);
-});
-
-test("registered output cap: missing top_provider falls back under the cap", () => {
-  const m = toRegisteredModel(glmLikeModel({ top_provider: undefined }));
-  assert.equal(m.maxTokens, 16_384);
-});
-
-test("registered output cap: other fields pass through untouched", () => {
+test("registered output budget: other fields pass through untouched", () => {
   const m = toRegisteredModel(glmLikeModel());
   assert.equal(m.contextWindow, 200_000);
   assert.equal(m.id, "z-ai/glm-latest");
-  assert.ok(m.reasoning || m.reasoning === false);
+  assert.equal(typeof m.reasoning, "boolean");
 });
