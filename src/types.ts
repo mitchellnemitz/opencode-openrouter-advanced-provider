@@ -49,7 +49,20 @@ export interface OpenRouterModel {
   architecture?: OpenRouterArchitecture;
   supported_parameters?: string[];
   default_parameters?: Record<string, unknown> | null;
+  /** Per-model reasoning controls. Present on current catalogs; absent on older snapshots. */
+  reasoning?: OpenRouterReasoning | null;
   per_request_limits?: { prompt_tokens?: number; completion_tokens?: number } | null;
+}
+
+/** OpenRouter's unified per-model reasoning controls (`reasoning` field of GET /api/v1/models). */
+export interface OpenRouterReasoning {
+  /** Effort levels the model accepts, descending. Absent means no effort selection exposed. */
+  supported_efforts?: string[] | null;
+  default_effort?: string | null;
+  default_enabled?: boolean | null;
+  /** true: reasoning always on — no "none" toggle exists for the model. */
+  mandatory?: boolean | null;
+  supports_max_tokens?: boolean | null;
 }
 
 /** Latency/throughput percentiles over a trailing window. */
@@ -158,6 +171,8 @@ export interface RegisteredModel {
   id: string;
   name: string;
   reasoning: boolean;
+  /** Effort levels OpenRouter accepts for the model, descending. Absent when undeclared. */
+  efforts?: string[];
   input: string[];
   cost: { input: number; output: number; cacheRead: number; cacheWrite: number };
   contextWindow: number;

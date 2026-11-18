@@ -116,7 +116,8 @@ function overlayTier(options: Record<string, unknown>, model: string, tier: Cost
 // Model registration
 // ---------------------------------------------------------------------------
 
-function toModelInfo(m: RegisteredModel): Model.Info {
+/** Convert one registered model into the OpenCode model-info registration shape. */
+export function toModelInfo(m: RegisteredModel): Model.Info {
   const providerID = Provider.ID.make(PROVIDER_ID);
   const base = Model.Info.default(providerID, Model.ID.make(m.id)) as unknown as Record<string, unknown>;
   const info: Record<string, unknown> = {
@@ -131,6 +132,13 @@ function toModelInfo(m: RegisteredModel): Model.Info {
       output: ["text"],
       temperature: true,
     },
+    // One variant per OpenRouter-supported effort; the provider package maps
+    // reasoningEffort to the request's reasoning.effort. No variant = the
+    // router's default_effort.
+    variants: (m.efforts ?? []).map((effort) => ({
+      id: effort,
+      settings: { reasoningEffort: effort },
+    })),
     limit: {
       context: m.contextWindow,
       output: m.maxTokens,

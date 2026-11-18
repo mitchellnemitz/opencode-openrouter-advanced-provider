@@ -6,6 +6,7 @@ import { parseSelectionSection, loadRequestConfig, isRealModelId, isVariantModel
 import { scoreProviders } from "../src/scoring.js";
 import { stripReasoningSignatures, isThoughtSignatureError, planSignatureRetry } from "../src/recovery.js";
 import { isReasoningModel, parseCost, supportsImages, toRegisteredModel } from "../src/catalog.js";
+import { toModelInfo } from "../src/index.js";
 import type { StatEndpoint, SelectionTuning, OpenRouterModel } from "../src/types.js";
 
 // ---- tier ----
@@ -203,6 +204,37 @@ test("catalog: pricing and modalities", () => {
   assert.equal(reg.cost.input, 200);
   assert.equal(reg.reasoning, true);
   assert.deepEqual(reg.input, ["text"]);
+});
+
+// ---- reasoning efforts -> variants ----
+
+test("registered efforts come from OpenRouter's reasoning.supported_efforts", () => {
+  const m = toRegisteredModel(glmLikeModel({
+    reasoning: { mandatory: true, default_enabled: true, supported_efforts: ["max", "high", "low"], default_effort: "max" },
+  }));
+  assert.deepEqual(m.efforts, ["max", "high", "low"]);
+});
+
+test("registered efforts: absent, null, or empty supported_efforts registers none", () => {
+  assert.equal(toRegisteredModel(glmLikeModel()).efforts, undefined);
+  assert.equal(toRegisteredModel(glmLikeModel({ reasoning: null })).efforts, undefined);
+  assert.equal(toRegisteredModel(glmLikeModel({ reasoning: { supported_efforts: [] } })).efforts, undefined);
+});
+
+test("registered model info carries one reasoningEffort variant per effort", () => {
+  const info = toModelInfo(toRegisteredModel(glmLikeModel({
+    reasoning: { mandatory: true, supported_efforts: ["max", "high", "low"], default_effort: "max" },
+  }))) as unknown as { variants: Array<{ id: string; settings: { reasoningEffort: string } }> };
+  assert.deepEqual(info.variants, [
+    { id: "max", settings: { reasoningEffort: "max" } },
+    { id: "high", settings: { reasoningEffort: "high" } },
+    { id: "low", settings: { reasoningEffort: "low" } },
+  ]);
+});
+
+test("registered model info has no variants when the model declares no efforts", () => {
+  const info = toModelInfo(toRegisteredModel(glmLikeModel())) as unknown as { variants: unknown[] };
+  assert.deepEqual(info.variants, []);
 });
 
 // ---- registered output budget: none (0) ----

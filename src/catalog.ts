@@ -111,12 +111,19 @@ function costOrFallback(cost: number | undefined, fallback: number): number {
  * overrides are the user's own choice).
  */
 
+/** Effort levels OpenRouter accepts for the model, when it declares them. */
+export function reasoningEfforts(m: OpenRouterModel): string[] | undefined {
+  const efforts = m.reasoning?.supported_efforts;
+  return Array.isArray(efforts) && efforts.length > 0 ? [...efforts] : undefined;
+}
+
 /** Convert one catalog model into the OpenCode registration shape. */
 export function toRegisteredModel(m: OpenRouterModel): RegisteredModel {
   return {
     id: m.id,
     name: m.name || m.id,
     reasoning: isReasoningModel(m),
+    efforts: reasoningEfforts(m),
     input: supportsImages(m.architecture) ? ["text", "image"] : ["text"],
     cost: {
       input: costOrFallback(parseCost(m.pricing?.prompt), 0),
